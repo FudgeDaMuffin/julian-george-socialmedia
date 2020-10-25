@@ -307,41 +307,55 @@ const deleteUser = async(id,mydb,collection)=>{
     })
 }
 app.get('/',(req,res)=>{
-    let requestType= req.query.requestType
-    let userID= req.query.id
-    let response;
-    //responds to request with object type "error" if the userID isnt the right format
-    if (userID==null||userID==undefined||userID==""||userID.length!=8) res.end({type:"error",reason:"Invalid ID provided"})
-    //if not, it assigns response to a Promise, and when the promise resolves it sends a response with its result
-    else {
-        if (requestType == "allData") response=getAllData(userID,dbToUse,collectionToUse)
-        else if (requestType == "basicData") response=getBasicData(userID,dbToUse,collectionToUse)
-        else if (requestType == "specificData") response=getSpecificData(userID,req.query.field,dbToUse,collectionToUse)
-        else if (requestType == "usersByField") response=getUsersByField(req.query.field,req.query.value,dbToUse,collectionToUse)
-        else if (requestType == "frequency") response=getFrequency(req.query.field,dbToUse,collectionToUse)
-        response.then(userObj=>{
-            if (userObj.hasOwnProperty("type")&&userObj.type=="error"){
-                res.end(JSON.stringify(userObj))
-            }
-            else {
-                //successful responses have type "success" and the data is stored in its data property
-                let successObj = {type:"success",reason:"",data:{}}
-                delete userObj.id
-                successObj.data=userObj
-                res.end(JSON.stringify(successObj))
-            }     
-        })   
-    } 
+    try{
+        let requestType= req.query.requestType
+        let userID= req.query.id
+        let response;
+        //responds to request with object type "error" if the userID isnt the right format
+        if (userID==null||userID==undefined||userID==""||userID.length!=8) res.end({type:"error",reason:"Invalid ID provided"})
+        //if not, it assigns response to a Promise, and when the promise resolves it sends a response with its result
+        else {
+            if (requestType == "allData") response=getAllData(userID,dbToUse,collectionToUse)
+            else if (requestType == "basicData") response=getBasicData(userID,dbToUse,collectionToUse)
+            else if (requestType == "specificData") response=getSpecificData(userID,req.query.field,dbToUse,collectionToUse)
+            else if (requestType == "usersByField") response=getUsersByField(req.query.field,req.query.value,dbToUse,collectionToUse)
+            else if (requestType == "frequency") response=getFrequency(req.query.field,dbToUse,collectionToUse)
+            response.then(userObj=>{
+                if (userObj.hasOwnProperty("type")&&userObj.type=="error"){
+                    res.end(JSON.stringify(userObj))
+                }
+                else {
+                    //successful responses have type "success" and the data is stored in its data property
+                    let successObj = {type:"success",reason:"",data:{}}
+                    delete userObj.id
+                    successObj.data=userObj
+                    res.end(JSON.stringify(successObj))
+                }     
+            })   
+        } 
+    }
+    catch(err) {
+        console.log("Error with GET request: "+err)
+        res.end({type:"error",reason:"Server Error"})
+    }
+    
 })
 app.post('/',(req,res)=>{
-    let requestType=req.query.requestType
-    let response;
-    if (requestType=="addUser") response=addUser(req.query.userdata,dbToUse,collectionToUse)
-    else if (requestType=="editUser") response=editUser(req.query.id,req.query.field,req.query.value,dbToUse,collectionToUse)
-    else if (requestType=="deleteUser") response=deleteUser(req.query.id,dbToUse,collectionToUse)
-    response.then((obj)=>{
-        res.end(JSON.stringify(obj))
-    })
+    try {
+        let requestType=req.query.requestType
+        let response;
+        if (requestType=="addUser") response=addUser(req.query.userdata,dbToUse,collectionToUse)
+        else if (requestType=="editUser") response=editUser(req.query.id,req.query.field,req.query.value,dbToUse,collectionToUse)
+        else if (requestType=="deleteUser") response=deleteUser(req.query.id,dbToUse,collectionToUse)
+        response.then((obj)=>{
+            res.end(JSON.stringify(obj))
+        })
+    }
+    catch (err) {
+        console.log("Error with POST request: "+err)
+        res.end({type:"error",reason:"Server Error"})
+    }
+    
     
 })
 app.listen(3000, () =>
