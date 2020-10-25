@@ -1,0 +1,13 @@
+{
+  "name": "julian-george-socialmedia",
+  "version": "1.0.0",
+  "description": "Back-end social media site demo for DALI 21W application",
+  "main": "socialmedia.js",
+  "author": "Julian George <julian@juliangeorge.net> (https://juliangeorge.net)",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "fs": "0.0.1-security",
+    "mongodb": "^3.6.2"
+  }
+}
